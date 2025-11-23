@@ -54,7 +54,7 @@ func (p *Provider) InstanceStop(ctx context.Context, name string) error {
 	}
 
 	p.l.DebugContext(ctx, modifyMessageForPausing("stopping container", pauseInsteadOfStop), slog.String("name", name))
-	var err error = nil
+	var err error
 	if pauseInsteadOfStop {
 		err = p.Client.ContainerPause(ctx, name)
 	} else {
@@ -67,8 +67,8 @@ func (p *Provider) InstanceStop(ctx context.Context, name string) error {
 	}
 
 	p.l.DebugContext(ctx, modifyMessageForPausing("waiting for container to stop", pauseInsteadOfStop), slog.String("name", name))
-	var waitC <-chan container.WaitResponse = nil
-	var errC <-chan error = nil
+	var waitC <-chan container.WaitResponse
+	var errC <-chan error
 	if pauseInsteadOfStop {
 		waitC, errC = p.waitForContainerToBePaused(ctx, name)
 	} else {
