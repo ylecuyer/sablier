@@ -2,13 +2,14 @@ package kubernetes_test
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/neilotoole/slogt"
 	"github.com/sablierapp/sablier/pkg/config"
 	"github.com/sablierapp/sablier/pkg/provider/kubernetes"
 	"gotest.tools/v3/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"testing"
-	"time"
 )
 
 func TestKubernetesProvider_NotifyInstanceStopped(t *testing.T) {
@@ -19,7 +20,10 @@ func TestKubernetesProvider_NotifyInstanceStopped(t *testing.T) {
 	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
 	kind := setupKinD(t, ctx)
-	p, err := kubernetes.New(ctx, kind.client, slogt.New(t), config.NewProviderConfig().Kubernetes)
+	conf := config.NewProviderConfig().Kubernetes
+	conf.QPS = 100
+	conf.Burst = 100
+	p, err := kubernetes.New(ctx, kind.client, slogt.New(t), conf)
 	assert.NilError(t, err)
 
 	waitC := make(chan string)
@@ -37,6 +41,7 @@ func TestKubernetesProvider_NotifyInstanceStopped(t *testing.T) {
 
 		s.Spec.Replicas = 0
 		_, err = p.Client.AppsV1().Deployments(d.Namespace).UpdateScale(ctx, d.Name, s, metav1.UpdateOptions{})
+		assert.NilError(t, err)
 
 		name := <-waitC
 
@@ -70,6 +75,7 @@ func TestKubernetesProvider_NotifyInstanceStopped(t *testing.T) {
 
 		s.Spec.Replicas = 0
 		_, err = p.Client.AppsV1().StatefulSets(ss.Namespace).UpdateScale(ctx, ss.Name, s, metav1.UpdateOptions{})
+		assert.NilError(t, err)
 
 		name := <-waitC
 

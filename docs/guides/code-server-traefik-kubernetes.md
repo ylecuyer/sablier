@@ -58,8 +58,8 @@
         enabled: true
 
     additionalArguments:
-      - "--experimental.plugins.sablier.moduleName=github.com/sablierapp/sablier"
-      - "--experimental.plugins.sablier.version=v1.9.0"
+      - "--experimental.plugins.sablier.moduleName=github.com/sablierapp/sablier-traefik-plugin"
+      - "--experimental.plugins.sablier.version=v1.0.0 # Check latest version
 
     providers:
       kubernetesIngress:
@@ -142,7 +142,7 @@
           serviceAccountName: sablier
           containers:
           - name: sablier
-            image: sablierapp/sablier:1.9.0
+            image: sablierapp/sablier:1.10.4 # x-release-please-version
             args: 
             - "start"
             - "--provider.name=kubernetes"

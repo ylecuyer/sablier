@@ -2,12 +2,13 @@ package dockerswarm_test
 
 import (
 	"context"
-	"github.com/docker/docker/api/types"
+	"testing"
+	"time"
+
+	"github.com/docker/docker/api/types/swarm"
 	"github.com/neilotoole/slogt"
 	"github.com/sablierapp/sablier/pkg/provider/dockerswarm"
 	"gotest.tools/v3/assert"
-	"testing"
-	"time"
 )
 
 func TestDockerSwarmProvider_NotifyInstanceStopped(t *testing.T) {
@@ -28,13 +29,13 @@ func TestDockerSwarmProvider_NotifyInstanceStopped(t *testing.T) {
 	go p.NotifyInstanceStopped(ctx, waitC)
 
 	t.Run("service is scaled to 0 replicas", func(t *testing.T) {
-		service, _, err := dind.client.ServiceInspectWithRaw(ctx, c.ID, types.ServiceInspectOptions{})
+		service, _, err := dind.client.ServiceInspectWithRaw(ctx, c.ID, swarm.ServiceInspectOptions{})
 		assert.NilError(t, err)
 
 		replicas := uint64(0)
 		service.Spec.Mode.Replicated.Replicas = &replicas
 
-		_, err = p.Client.ServiceUpdate(ctx, service.ID, service.Meta.Version, service.Spec, types.ServiceUpdateOptions{})
+		_, err = p.Client.ServiceUpdate(ctx, service.ID, service.Version, service.Spec, swarm.ServiceUpdateOptions{})
 		assert.NilError(t, err)
 
 		name := <-waitC
@@ -44,7 +45,7 @@ func TestDockerSwarmProvider_NotifyInstanceStopped(t *testing.T) {
 	})
 
 	t.Run("service is removed", func(t *testing.T) {
-		service, _, err := dind.client.ServiceInspectWithRaw(ctx, c.ID, types.ServiceInspectOptions{})
+		service, _, err := dind.client.ServiceInspectWithRaw(ctx, c.ID, swarm.ServiceInspectOptions{})
 		assert.NilError(t, err)
 
 		err = p.Client.ServiceRemove(ctx, service.ID)

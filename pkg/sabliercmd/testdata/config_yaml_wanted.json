@@ -1,0 +1,40 @@
+{
+  "Server": {
+    "Port": 1111,
+    "BasePath": "/configfile/"
+  },
+  "Storage": {
+    "File": "/tmp/configfile.json"
+  },
+  "Provider": {
+    "Name": "configfile",
+    "AutoStopOnStartup": false,
+    "Kubernetes": {
+      "QPS": 64,
+      "Burst": 128,
+      "Delimiter": "."
+    },
+    "Podman": {
+      "Uri": "unix:///run/podman/podman.sock.yml"
+    }
+  },
+  "Sessions": {
+    "DefaultDuration": 3600000000000,
+    "ExpirationInterval": 3600000000000
+  },
+  "Logging": {
+    "Level": "debug"
+  },
+  "Strategy": {
+    "Dynamic": {
+      "CustomThemesPath": "/tmp/configfile/themes",
+      "ShowDetailsByDefault": false,
+      "DefaultTheme": "configfile",
+      "DefaultRefreshFrequency": 3600000000000
+    },
+    "Blocking": {
+      "DefaultTimeout": 3600000000000,
+      "DefaultRefreshFrequency": 3600000000000
+    }
+  }
+}

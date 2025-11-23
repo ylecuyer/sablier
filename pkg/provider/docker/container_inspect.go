@@ -3,8 +3,10 @@ package docker
 import (
 	"context"
 	"fmt"
-	"github.com/sablierapp/sablier/pkg/sablier"
 	"log/slog"
+
+	"github.com/docker/docker/api/types/container"
+	"github.com/sablierapp/sablier/pkg/sablier"
 )
 
 func (p *Provider) InstanceInspect(ctx context.Context, name string) (sablier.InstanceInfo, error) {
@@ -13,6 +15,8 @@ func (p *Provider) InstanceInspect(ctx context.Context, name string) (sablier.In
 		return sablier.InstanceInfo{}, fmt.Errorf("cannot inspect container: %w", err)
 	}
 
+	p.l.DebugContext(ctx, "container inspected", slog.String("container", name), slog.String("status", spec.State.Status), slog.String("health", healthStatus(spec.State.Health)))
+
 	// "created", "running", "paused", "restarting", "removing", "exited", or "dead"
 	switch spec.State.Status {
 	case "created", "paused", "restarting", "removing":
@@ -20,11 +24,12 @@ func (p *Provider) InstanceInspect(ctx context.Context, name string) (sablier.In
 	case "running":
 		if spec.State.Health != nil {
 			// // "starting", "healthy" or "unhealthy"
-			if spec.State.Health.Status == "healthy" {
+			switch spec.State.Health.Status {
+			case "healthy":
 				return sablier.ReadyInstanceState(name, p.desiredReplicas), nil
-			} else if spec.State.Health.Status == "unhealthy" {
+			case "unhealthy":
 				return sablier.UnrecoverableInstanceState(name, "container is unhealthy", p.desiredReplicas), nil
-			} else {
+			default:
 				return sablier.NotReadyInstanceState(name, 0, p.desiredReplicas), nil
 			}
 		}
@@ -40,4 +45,12 @@ func (p *Provider) InstanceInspect(ctx context.Context, name string) (sablier.In
 	default:
 		return sablier.UnrecoverableInstanceState(name, fmt.Sprintf("container status \"%s\" not handled", spec.State.Status), p.desiredReplicas), nil
 	}
+}
+
+func healthStatus(health *container.Health) string {
+	if health == nil {
+		return "no healthcheck defined"
+	}
+
+	return health.Status
 }

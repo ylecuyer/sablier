@@ -32,16 +32,18 @@ PROVIDER_NAME=docker_swarm # or swarm
 
 !> **Ensure that Sablier has access to the docker socket!**
 
+<!-- x-release-please-start-version -->
 ```yaml
 services:
   sablier:
-    image: sablierapp/sablier:1.9.0
+    image: sablierapp/sablier:1.10.4
     command:
       - start
       - --provider.name=docker_swarm # or swarm
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
 ```
+<!-- x-release-please-end -->
 
 ## Register services
 

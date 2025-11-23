@@ -2,15 +2,16 @@ package dockerswarm_test
 
 import (
 	"context"
-	"github.com/docker/docker/api/types"
+	"testing"
+	"time"
+
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/swarm"
 	"github.com/google/go-cmp/cmp"
 	"github.com/neilotoole/slogt"
 	"github.com/sablierapp/sablier/pkg/provider/dockerswarm"
 	"github.com/sablierapp/sablier/pkg/sablier"
 	"gotest.tools/v3/assert"
-	"testing"
-	"time"
 )
 
 func TestDockerSwarmProvider_GetState(t *testing.T) {
@@ -40,7 +41,7 @@ func TestDockerSwarmProvider_GetState(t *testing.T) {
 						return "", err
 					}
 
-					service, _, err := dind.client.ServiceInspectWithRaw(ctx, s.ID, types.ServiceInspectOptions{})
+					service, _, err := dind.client.ServiceInspectWithRaw(ctx, s.ID, swarm.ServiceInspectOptions{})
 					if err != nil {
 						return "", err
 					}
@@ -76,7 +77,7 @@ func TestDockerSwarmProvider_GetState(t *testing.T) {
 						return "", err
 					}
 
-					service, _, err := dind.client.ServiceInspectWithRaw(ctx, s.ID, types.ServiceInspectOptions{})
+					service, _, err := dind.client.ServiceInspectWithRaw(ctx, s.ID, swarm.ServiceInspectOptions{})
 					if err != nil {
 						return "", err
 					}
@@ -100,14 +101,14 @@ func TestDockerSwarmProvider_GetState(t *testing.T) {
 						return "", err
 					}
 
-					service, _, err := dind.client.ServiceInspectWithRaw(ctx, s.ID, types.ServiceInspectOptions{})
+					service, _, err := dind.client.ServiceInspectWithRaw(ctx, s.ID, swarm.ServiceInspectOptions{})
 					if err != nil {
 						return "", err
 					}
 
 					replicas := uint64(0)
 					service.Spec.Mode.Replicated.Replicas = &replicas
-					_, err = dind.client.ServiceUpdate(ctx, s.ID, service.Version, service.Spec, types.ServiceUpdateOptions{})
+					_, err = dind.client.ServiceUpdate(ctx, s.ID, service.Version, service.Spec, swarm.ServiceUpdateOptions{})
 					if err != nil {
 						return "", err
 					}
@@ -128,6 +129,7 @@ func TestDockerSwarmProvider_GetState(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			p, err := dockerswarm.New(ctx, c.client, slogt.New(t))
+			assert.NilError(t, err)
 
 			name, err := tt.args.do(c)
 			assert.NilError(t, err)

@@ -1,25 +1,25 @@
 # Configuration
 
-There are three different ways to define configuration options in Sablier:
+There are three ways to define configuration options in Sablier:
 
 1. In a configuration file
 2. As environment variables
-3. In the command-line arguments
+3. As command-line arguments
 
-These ways are evaluated in the order listed above.
+These methods are evaluated in the order listed above, with later methods overriding earlier ones.
 
-If no value was provided for a given option, a default value applies.
+If no value is provided for a given option, a default value is used.
 
 ## Configuration File
 
-At startup, Sablier searches for configuration in a file named sablier.yml (or sablier.yaml) in:
+At startup, Sablier searches for a configuration file named `sablier.yml` (or `sablier.yaml`) in the following locations:
 
 - `/etc/sablier/`
 - `$XDG_CONFIG_HOME/`
 - `$HOME/.config/`
-- `.` *(the working directory).*
+- `.` *(the working directory)*
 
-You can override this using the configFile argument.
+You can override this by using the `configFile` argument:
 
 ```bash
 sablier --configFile=path/to/myconfigfile.yml
@@ -45,7 +45,7 @@ sessions:
   # If you only use sessions of 1h, setting this to 5m is a good trade-off.
   expiration-interval: 20s
 logging:
-  level: trace
+  level: debug
 strategy:
   dynamic:
     # Custom themes folder, will load all .html files recursively (default empty)
@@ -63,7 +63,9 @@ strategy:
 
 ## Environment Variables
 
-All environment variables can be used in the form of the config file such as 
+All configuration options can be set as environment variables. The variable names follow the structure of the configuration file.
+
+For example, this configuration:
 
 ```yaml
 strategy:
@@ -71,7 +73,7 @@ strategy:
     custom-themes-path: /my/path
 ```
 
-Becomes
+Becomes:
 
 ```bash
 STRATEGY_DYNAMIC_CUSTOM_THEMES_PATH=/my/path
@@ -81,16 +83,19 @@ STRATEGY_DYNAMIC_CUSTOM_THEMES_PATH=/my/path
 
 To get the list of all available arguments:
 
+<!-- x-release-please-start-version -->
 ```bash
 sablier --help
 
 # or
 
-docker run sablierapp/sablier[:version] --help
-# ex: docker run sablierapp/sablier:1.9.0 --help
+docker run sablierapp/sablier:1.10.4 --help
 ```
+<!-- x-release-please-end -->
 
-All arguments can be used in the form of the config file such as 
+All configuration options can be used as command-line arguments. The argument names follow the structure of the configuration file.
+
+For example, this configuration:
 
 ```yaml
 strategy:
@@ -98,7 +103,7 @@ strategy:
     custom-themes-path: /my/path
 ```
 
-Becomes
+Becomes:
 
 ```bash
 sablier start --strategy.dynamic.custom-themes-path /my/path
