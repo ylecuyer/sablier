@@ -76,7 +76,7 @@ func (p *Provider) InstanceStop(ctx context.Context, name string) error {
 	}
 	select {
 	case response := <-waitC:
-		p.l.DebugContext(ctx, modifyMessageForPausing("container stopped", pauseInsteadOfStop), slog.String("name", name)), slog.Int64("exit_code", response.StatusCode))
+		p.l.DebugContext(ctx, modifyMessageForPausing("container stopped", pauseInsteadOfStop), slog.String("name", name), slog.Int64("exit_code", response.StatusCode))
 		return nil
 	case err := <-errC:
 		p.l.ErrorContext(ctx, modifyMessageForPausing("cannot wait for container to stop", pauseInsteadOfStop), slog.String("name", name), slog.Any("error", err))
